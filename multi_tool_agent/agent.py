@@ -5,10 +5,11 @@ from google.adk.agents import Agent
 
 import os
 import requests
+import litellm
 
-OPENWEATHER_API_KEY = "c815a66682c3ce84271108a7924ec589"
+OPENWEATHER_API_KEY = "PROVIDE_THE_KEY"
 
-def get_weather(city: str, llm=None) -> dict:
+def get_weather(city: str) -> dict:
     """Fetches current weather for a city using OpenWeatherMap 2.5 Weather API."""
     if not OPENWEATHER_API_KEY:
         return {"status": "error", "error_message": "API key not set."}
@@ -42,8 +43,11 @@ def get_weather(city: str, llm=None) -> dict:
         f"The weather in {city} is {weather_desc} with a temperature of {temp_c}°C. "
         "What should a traveler wear or take when visiting?"
     )
-    # Call the LLM (pseudo-code, replace with actual LLM call)
-    suggestion = llm.generate(prompt)
+    # Use litellm to call Ollama
+    suggestion = litellm.completion(
+        model="ollama/phi3:latest",
+        messages=[{"role": "user", "content": prompt}]
+    ).choices[0].message.content
     return {
         "status": "success",
         "report": f"The weather in {city} is {weather_desc} with a temperature of {temp_c}°C.",
